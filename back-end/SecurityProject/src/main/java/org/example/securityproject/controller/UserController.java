@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.InvalidKeyException;
@@ -136,5 +137,14 @@ public class UserController {
     public ResponseEntity<ResponseDto> verifyReCaptchaToken(@RequestBody VerificationReCaptchaRequestDto verificationRequest)
     {
         return new ResponseEntity<>(userService.verifyReCaptchaToken(verificationRequest), HttpStatus.OK);
+    }
+
+    @GetMapping("/testKeycloak")
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public String testKeycloak() {
+
+       //String htmlResponse = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>RADI KEYCLOAK</title></head><body><h1>RADI KEYCLOAK</h1><p>RADI KEYCLOAK</p></body></html>";
+
+        return "TEST KEYCLOAK PLSSSSS";
     }
 }

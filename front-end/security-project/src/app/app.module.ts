@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -31,7 +31,11 @@ import { HomePageComponent } from './homepage/homepage.component';
 import { PermissionsManipulationComponent } from './administrator/permissions-manipulation/permissionsManipulation.component';
 import { ClientHomepageComponent } from './client-homepage/client-homepage.component';
 import { NgxCaptchaModule } from 'ngx-captcha';
+import {KeycloakService} from './keycloak/keycloak.service';
 
+export function kcFactory(kcService: KeycloakService) {
+  return () => kcService.init();
+}
 @NgModule({
   declarations: [
     AppComponent,
@@ -79,6 +83,12 @@ import { NgxCaptchaModule } from 'ngx-captcha';
       useValue: environment.recaptcha.siteKey,
     }]
     */
+    {
+      provide: APP_INITIALIZER,
+      deps: [KeycloakService],
+      useFactory: kcFactory,
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })

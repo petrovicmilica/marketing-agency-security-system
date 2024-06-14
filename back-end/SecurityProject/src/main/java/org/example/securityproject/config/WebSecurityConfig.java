@@ -10,25 +10,27 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import org.example.securityproject.auth.RestAuthenticationEntryPoint;
 import org.example.securityproject.auth.TokenAuthenticationFilter;
 import org.example.securityproject.services.CustomUserDetailsService;
 import org.example.securityproject.util.TokenUtils;
-
-import static org.example.securityproject.enums.Permission.ADMIN_READ;
-import static org.example.securityproject.enums.UserRole.*;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 // Injektovanje bean-a za bezbednost
@@ -36,6 +38,9 @@ import static org.example.securityproject.enums.UserRole.*;
 // Ukljucivanje podrske za anotacije "@Pre*" i "@Post*" koje ce aktivirati autorizacione provere za svaki pristup metodi
 @EnableGlobalMethodSecurity(prePostEnabled = false, securedEnabled = true, jsr250Enabled = true)
 public class WebSecurityConfig {
+
+    //SSO
+    //private final JwtAuthConverter jwtAuthConverter;
 
     @Value("${security.project.secret}")
     private String SECRET_KEY;
@@ -77,8 +82,6 @@ public class WebSecurityConfig {
         return new CustomAuthenticationProvider(userDetailsService(), userRepository, userDataEncryptionService);
     }
 
-
-
     // Handler za vracanje 401 kada klijent sa neodogovarajucim korisnickim imenom i lozinkom pokusa da pristupi resursu
     @Autowired
     private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
@@ -89,14 +92,31 @@ public class WebSecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 
-
     // Injektujemo implementaciju iz TokenUtils klase kako bismo mogli da koristimo njene metode za rad sa JWT u TokenAuthenticationFilteru
     @Autowired
     private TokenUtils tokenUtils;
 
     // Definisemo prava pristupa za zahteve ka odredjenim URL-ovima/rutama
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        //
+        //ZA SSO
+
+        /*
+        http
+                .oauth2ResourceServer()
+                .jwt()
+                .jwtAuthenticationConverter(jwtAuthConverter);
+
+        http
+                .sessionManagement()
+                .sessionCreationPolicy(STATELESS);
+
+         */
+
+        //
+
         // svim korisnicima dopusti da pristupe sledecim putanjama:
         // komunikacija izmedju klijenta i servera je stateless posto je u pitanju REST aplikacija
         // ovo znaci da server ne pamti nikakvo stanje, tokeni se ne cuvaju na serveru
@@ -134,6 +154,8 @@ public class WebSecurityConfig {
                 .antMatchers(HttpMethod.POST,"/api/ads/create").hasAuthority("EMPLOYEE_CREATE")
                 .antMatchers(HttpMethod.GET,"/api/ad-requests/all").hasAuthority("EMPLOYEE_READ")
                 .antMatchers(HttpMethod.GET,"/api/ad-requests/**").hasAuthority("EMPLOYEE_READ")
+                .antMatchers(HttpMethod.GET,"/api/users/testKeycloak").hasAuthority("EMPLOYEE_READ") ///
+
 
                 // CLIENT NOVO
                 .antMatchers(HttpMethod.POST,"/api/ad-requests/create").hasAuthority("CLIENT_CREATE")
@@ -199,6 +221,8 @@ public class WebSecurityConfig {
                 .antMatchers(HttpMethod.GET, "/api/login/tokens/**")
                 .antMatchers(HttpMethod.POST, "/api/users/verify/**")
                 .antMatchers(HttpMethod.POST, "/api/users/verifyReCaptchaToken/**")
+                //.antMatchers(HttpMethod.GET, "/api/users/testKeycloak")
+                .antMatchers(HttpMethod.POST, "/realms/security-project/protocol/openid-connect/token")
                 .antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "favicon.ico",
                         "/**/*.html", "/**/*.css", "/**/*.js");
     }
