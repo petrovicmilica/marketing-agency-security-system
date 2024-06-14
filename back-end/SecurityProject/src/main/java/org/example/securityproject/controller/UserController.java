@@ -1,12 +1,15 @@
 package org.example.securityproject.controller;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import lombok.AllArgsConstructor;
+import org.example.securityproject.config.GoogleSingleSignOnHandler;
 import org.example.securityproject.dto.*;
 import org.example.securityproject.enums.Permission;
 import org.example.securityproject.enums.UserRole;
 import org.example.securityproject.model.User;
 import org.example.securityproject.repository.ConfirmationTokenRepository;
 import org.example.securityproject.repository.UserRepository;
+import org.example.securityproject.service.LoginService;
 import org.example.securityproject.service.UserDataEncryptionService;
 import org.example.securityproject.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +31,8 @@ public class UserController {
     private ConfirmationTokenRepository confirmationTokenRepository;
     private UserRepository userRepository;
     private UserDataEncryptionService userDataEncryptionService;
+    private GoogleSingleSignOnHandler googleSingleSignOnHandler;
+    private LoginService loginService;
 
     //TEST DA LI ROLE MOGU DA SE MENJAJU IZ KODA
 
@@ -136,5 +141,18 @@ public class UserController {
     public ResponseEntity<ResponseDto> verifyReCaptchaToken(@RequestBody VerificationReCaptchaRequestDto verificationRequest)
     {
         return new ResponseEntity<>(userService.verifyReCaptchaToken(verificationRequest), HttpStatus.OK);
+    }
+
+    @PostMapping("verifyGoogleToken")
+    public ResponseEntity<ResponseGoogleDto> verifyGoogleToken(@RequestBody GoogleUserDto socialUser) {
+        try {
+            GoogleIdToken.Payload payload = googleSingleSignOnHandler.verify(socialUser.getIdToken());
+            System.out.println("PAYLOAD EMAIL:::: " + payload.getEmail());
+            //String loginPassword = loginService.getLoginPassword(payload.getEmail());
+            String googleEmail = payload.getEmail();
+            return new ResponseEntity<>(new ResponseGoogleDto("Token verification successful.", true, googleEmail, ""), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ResponseGoogleDto("Invalid Google sign in token.", false, "", ""), HttpStatus.UNAUTHORIZED);
+        }
     }
 }

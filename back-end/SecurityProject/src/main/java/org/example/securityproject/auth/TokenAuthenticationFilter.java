@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.example.securityproject.service.UserDataEncryptionService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -44,7 +45,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
-
         String username;
 
         // 1. Preuzimanje JWT tokena iz zahteva
@@ -60,10 +60,13 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 if (username != null) {
 
                     // 3. Preuzimanje korisnika na osnovu username-a
+                    System.out.println("USERNAME: " + username);
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    System.out.println("USER DETAILS::::" + userDetails.getUsername());
 
                     // 4. Provera da li je prosledjeni token validan
                     if (tokenUtils.validateToken(authToken, userDetails)) {
+                        System.out.println("VALIDAN TOKEN:::: USAOOO::: ");
 
                         // 5. Kreiraj autentifikaciju
                         TokenBasedAuthentication authentication = new TokenBasedAuthentication(userDetails);
@@ -75,6 +78,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
         } catch (ExpiredJwtException ex) {
             LOGGER.debug("Token expired!");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         // prosledi request dalje u sledeci filter

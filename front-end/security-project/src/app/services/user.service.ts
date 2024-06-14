@@ -11,6 +11,7 @@ import { Ad } from '../model/ad.model';
 import { UserRole } from '../model/userRole.model';
 import { Permission } from '../model/permission.model';
 import { RegistrationResponse } from '../model/registrationResponse';
+import { ResponseGoogleDto } from '../model/responseGoogleDto.model';
 
 @Injectable({
   providedIn: 'root',
@@ -147,5 +148,9 @@ export class UserService {
 
   verifyReCaptchaToken(verificationData: any): Observable<ResponseMessage> {
     return this.http.post<ResponseMessage>(this.apiUrl + 'users/verifyReCaptchaToken', verificationData);
+  }
+
+  verifyGoogleToken(socialUser: any): Observable<ResponseGoogleDto> {
+    return this.http.post<ResponseGoogleDto>(this.apiUrl + 'users/verifyGoogleToken', socialUser);
   }
 }

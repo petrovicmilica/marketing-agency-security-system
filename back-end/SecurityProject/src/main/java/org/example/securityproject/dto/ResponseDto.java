@@ -7,6 +7,11 @@ public class ResponseDto {
     public ResponseDto() {
     }
 
+    public ResponseDto(String responseMessage, boolean flag) {
+        this.responseMessage = responseMessage;
+        this.flag = flag;
+    }
+
     public String getResponseMessage() {
         return responseMessage;
     }

@@ -4,10 +4,8 @@ package org.example.securityproject.controller;
 import javax.servlet.http.HttpServletResponse;
 //import org.apache.coyote.BadRequestException;
 import javax.servlet.http.HttpServletRequest;
-import org.example.securityproject.dto.AccessRefreshTokenResponseDto;
-import org.example.securityproject.dto.JwtAuthenticationRequest;
-import org.example.securityproject.dto.UserRequest;
-import org.example.securityproject.dto.UserTokenState;
+
+import org.example.securityproject.dto.*;
 import org.example.securityproject.model.User;
 import org.example.securityproject.service.UserDataEncryptionService;
 import org.example.securityproject.service.UserService;
@@ -73,6 +71,28 @@ public class AuthenticationController {
         // Vrati token kao odgovor na uspesnu autentifikaciju
         return ResponseEntity.ok(new AccessRefreshTokenResponseDto(accessToken, accessExpiresIn, refreshToken, refreshExpiresIn));
     }
+
+    /*
+    @PostMapping("/googleLogin")
+    public ResponseEntity<AccessRefreshTokenResponseDto> createGoogleAuthenticationToken(@RequestBody EmailDto emailDto) throws Exception {
+
+        String googleEmail = emailDto.getGoogleEmail();
+        System.out.println("U GOOGLE LOGIN POST:::: " + googleEmail);
+        String encryptedUsername = userDataEncryptionService.encryptData(googleEmail);
+
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                encryptedUsername, "Radovanovic2001!"));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String accessToken = tokenUtils.generateAccessToken(googleEmail);
+        String refreshToken = tokenUtils.generateRefreshToken(googleEmail);
+        int accessExpiresIn = tokenUtils.getAccessExpiresIn();
+        int refreshExpiresIn = tokenUtils.getRefreshExpiresIn();
+
+        return ResponseEntity.ok(new AccessRefreshTokenResponseDto(accessToken, accessExpiresIn, refreshToken, refreshExpiresIn));
+    }
+
+     */
 
     // Endpoint za osvežavanje access tokena
     @GetMapping("/refresh-token")

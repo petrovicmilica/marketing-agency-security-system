@@ -52,3 +52,13 @@
 </div>
 
 <div *ngIf="messagePassword">{{ messagePassword }}</div>
+
+<h1> Sign in with google </h1>
+
+<asl-google-signin-button *ngIf="!socialUser"></asl-google-signin-button>
+
+<div *ngIf="socialUser">
+  <h1>USER SE USPESNO ULOGOVAO</h1>
+
+</div>
+

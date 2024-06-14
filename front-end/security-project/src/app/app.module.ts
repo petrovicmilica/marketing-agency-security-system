@@ -31,6 +31,12 @@ import { HomePageComponent } from './homepage/homepage.component';
 import { PermissionsManipulationComponent } from './administrator/permissions-manipulation/permissionsManipulation.component';
 import { ClientHomepageComponent } from './client-homepage/client-homepage.component';
 import { NgxCaptchaModule } from 'ngx-captcha';
+import { SocialLoginModule, SocialAuthServiceConfig } from '@abacritt/angularx-social-login';
+import {
+  GoogleLoginProvider,
+} from '@abacritt/angularx-social-login';
+import {  GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
+
 
 @NgModule({
   declarations: [
@@ -61,7 +67,9 @@ import { NgxCaptchaModule } from 'ngx-captcha';
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
-    NgxCaptchaModule
+    NgxCaptchaModule,
+    SocialLoginModule,
+    GoogleSigninButtonModule
   ],
   providers: [
     AuthService,
@@ -79,6 +87,24 @@ import { NgxCaptchaModule } from 'ngx-captcha';
       useValue: environment.recaptcha.siteKey,
     }]
     */
+    {
+      provide: 'SocialAuthServiceConfig',
+      useValue: {
+        autoLogin: false,
+        lang: 'en',
+        providers: [
+          {
+            id: GoogleLoginProvider.PROVIDER_ID,
+            provider: new GoogleLoginProvider(
+              '511804981207-ds4gmjjjhj0v7justdqnu5hhieiujsji.apps.googleusercontent.com'
+            )
+          },
+        ],
+        onError: (err) => {
+          console.error(err);
+        }
+      } as SocialAuthServiceConfig,
+    }
   ],
   bootstrap: [AppComponent]
 })

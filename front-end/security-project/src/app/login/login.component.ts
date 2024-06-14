@@ -5,6 +5,9 @@ import { UserService } from '../services/user.service';
 import { ResponseMessage } from '../model/responseMessage.model';
 import { LoginResponse } from '../model/loginResponse.model';
 import { environment } from 'src/env/environment';
+import { GoogleLoginProvider, SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 declare var grecaptcha: any;
 
@@ -35,7 +38,10 @@ export class LoginComponent implements OnInit {
 
   constructor(private userService: UserService, 
     private fb: FormBuilder, 
-    private authService: AuthService){}
+    private authService: AuthService,
+    private socialAuthService: SocialAuthService,
+    private httpClient: HttpClient,
+    private router: Router){}
 
   ngOnInit(): void {
     this.passwordForm = this.fb.group({
@@ -43,6 +49,73 @@ export class LoginComponent implements OnInit {
       newPassword: ['', Validators.required],
       confirmPassword: ['', Validators.required]
     });
+
+    this.socialAuthService.authState.subscribe((user) => {
+      if (user) {
+        this.socialUser = user;
+        console.log(this.socialUser);
+        this.userService.verifyGoogleToken(this.socialUser).subscribe(
+          response => {
+            console.log(response);
+            if (response.flag) {
+              console.log("FLAG: "+ response.flag);
+              console.log("EMAIL:::: " + response.googleEmail);
+              console.log("MESSAGE: "+ response.responseMessage);
+              console.log("PASSWROD: " + response.loginPassword);
+              this.messageLogin = response.responseMessage;
+              const googleEmail = response.googleEmail;
+              console.log("GOOGLE EMAIL:::: " + googleEmail);
+              //this.googleLogin(response.email, response.loginPassword);
+              this.authService.googleLogin(googleEmail).subscribe(
+                response => {
+                  localStorage.setItem("jwt", response.accessToken);
+                  localStorage.setItem("refreshToken", response.refreshToken);
+                  this.authService.getLoggedInUser();
+                  this.router.navigate(['/homepage']);
+                },
+                error => {
+                  this.messageLogin = 'Google login faild.';
+                }
+              )
+            } else {
+              this.messageLogin = response.responseMessage;
+            }
+          },
+          error => {
+            this.messageLogin = 'Verification failed. Please try again later.';
+          }
+        );        
+      }
+    });
+
+    /*
+    google.accounts.id.initialize({
+      client_id: 'YOUR_GOOGLE_CLIENT_ID',
+      callback: (resp: any) => {
+        
+      }
+    });
+
+    google.account.id.renderButton(document.getById("google-btn")), {
+      theme: 'filled_blue', 
+      size: 'large', 
+      shape: 'rectangle', 
+      width: 350
+    }
+      */
+  }
+
+  googleLogin(googleUsername: string, googlePassword: string) {
+    this.authService.login({ username: googleUsername, password: googlePassword }).subscribe(
+      (response: any) => {
+        console.log('Login successful!!!');
+      },
+      (error) => {
+        console.error('Login failed:', error);
+        this.messageLogin = 'Login failed. Please try again.';
+      }
+    );
+
   }
 
   tryLogin(): void {
@@ -215,5 +288,32 @@ export class LoginComponent implements OnInit {
         }
       );
     }
+  }
+
+
+  ////////////////////////
+  private accessToken = '';
+  socialUser: SocialUser | undefined;
+  socialLoggedIn: boolean | undefined;
+
+  refreshToken(): void {
+    this.socialAuthService.refreshAuthToken(GoogleLoginProvider.PROVIDER_ID);
+  }
+
+  getAccessToken(): void {
+    this.socialAuthService.getAccessToken(GoogleLoginProvider.PROVIDER_ID).then(accessToken => this.accessToken = accessToken);
+  }
+
+  getGoogleCalendarData(): void {
+    if (!this.accessToken) return;
+
+    this.httpClient
+      .get('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+        headers: { Authorization: `Bearer ${this.accessToken}` },
+      })
+      .subscribe((events) => {
+        alert('Look at your console');
+        console.log('events', events);
+      });
   }
 }

@@ -8,6 +8,7 @@ import { UserService } from "../services/user.service";
 import { User } from "../model/user.model";
 import { UserRole } from "../model/userRole.model";
 import { EMPTY, Observable, interval } from 'rxjs';
+import { RefreshAccessTokenResponse } from "../model/refreshAccessTokenResponse.model";
 
 @Injectable()
 export class AuthService {
@@ -58,6 +59,14 @@ export class AuthService {
         console.error('Invalid response or missing access token:', res);
       }
     }));
+  }
+
+  googleLogin(email: string): Observable<RefreshAccessTokenResponse> {
+    const emailDto = { 
+     'googleEmail': email 
+    };
+    //const body = {email};
+    return this.http.post<RefreshAccessTokenResponse>("https://localhost:443/api/auth/googleLogin", emailDto);
   }
 
   getLoggedInUser() {
