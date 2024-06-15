@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 //import org.apache.coyote.BadRequestException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.example.securityproject.auth.CustomAuthenticationProvider;
 import org.example.securityproject.dto.*;
 import org.example.securityproject.model.User;
 import org.example.securityproject.service.UserDataEncryptionService;
@@ -13,6 +14,9 @@ import org.example.securityproject.util.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 //import org.springframework.web.ErrorResponse;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.authentication.AuthenticationManager;
 
@@ -91,7 +95,28 @@ public class AuthenticationController {
 
         return ResponseEntity.ok(new AccessRefreshTokenResponseDto(accessToken, accessExpiresIn, refreshToken, refreshExpiresIn));
     }
+     */
 
+    /*
+    @PostMapping("/googleLogin")
+    public ResponseEntity<AccessRefreshTokenResponseDto> createGoogleAuthenticationToken(
+            @RequestBody GoogleLoginDto googleLoginDto) throws Exception {
+
+        String encryptedUsername = userDataEncryptionService.encryptData(googleLoginDto.getGoogleEmail());
+
+        Authentication authentication = customAuthenticationProvider.googleAuthenticate(new UsernamePasswordAuthenticationToken(
+                encryptedUsername, googleLoginDto.getGooglePassword()));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        User user = (User) authentication.getPrincipal();
+        String accessToken = tokenUtils.generateAccessToken(user.getUsername());
+        String refreshToken = tokenUtils.generateRefreshToken(user.getUsername());
+        int accessExpiresIn = tokenUtils.getAccessExpiresIn();
+        int refreshExpiresIn = tokenUtils.getRefreshExpiresIn();
+
+        return ResponseEntity.ok(new AccessRefreshTokenResponseDto(accessToken, accessExpiresIn, refreshToken, refreshExpiresIn));
+    }
      */
 
     // Endpoint za osvežavanje access tokena
@@ -131,6 +156,4 @@ public class AuthenticationController {
         // Ako je access token važeći, vraćamo status 200 OK
         return ResponseEntity.ok().build();
     }
-
-
 }

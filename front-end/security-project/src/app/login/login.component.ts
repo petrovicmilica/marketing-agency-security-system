@@ -36,6 +36,8 @@ export class LoginComponent implements OnInit {
 
   siteKey = `${environment.recaptcha.siteKey}`;
 
+  socialUser: SocialUser | undefined;
+
   constructor(private userService: UserService, 
     private fb: FormBuilder, 
     private authService: AuthService,
@@ -62,7 +64,8 @@ export class LoginComponent implements OnInit {
               console.log("EMAIL:::: " + response.googleEmail);
               console.log("MESSAGE: "+ response.responseMessage);
               console.log("PASSWROD: " + response.loginPassword);
-              this.messageLogin = response.responseMessage;
+              this.googleLogin(response.googleEmail, response.loginPassword);
+              /*this.messageLogin = response.responseMessage;
               const googleEmail = response.googleEmail;
               console.log("GOOGLE EMAIL:::: " + googleEmail);
               //this.googleLogin(response.email, response.loginPassword);
@@ -77,6 +80,7 @@ export class LoginComponent implements OnInit {
                   this.messageLogin = 'Google login faild.';
                 }
               )
+                */
             } else {
               this.messageLogin = response.responseMessage;
             }
@@ -115,7 +119,6 @@ export class LoginComponent implements OnInit {
         this.messageLogin = 'Login failed. Please try again.';
       }
     );
-
   }
 
   tryLogin(): void {
@@ -292,7 +295,7 @@ export class LoginComponent implements OnInit {
 
 
   ////////////////////////
-  private accessToken = '';
+  /*private accessToken = '';
   socialUser: SocialUser | undefined;
   socialLoggedIn: boolean | undefined;
 
@@ -316,4 +319,5 @@ export class LoginComponent implements OnInit {
         console.log('events', events);
       });
   }
+      */
 }

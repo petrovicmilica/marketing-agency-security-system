@@ -28,6 +28,7 @@ public class LoginService {
         User encryptedUser = userDataEncryptionService.findEncryptedUserByEmail(plainEmail);
         System.out.println("ENKRIPTOVAN USER POSTOJI::: " + encryptedUser.getEmail());
         System.out.println("LOZINKA:::: " + encryptedUser.getPassword());
-        return encryptedUser.getPassword();
+        //return encryptedUser.getPassword(); //on ovde dobije hesiran password
+        return "Radovanovic2001!"; //ovaj password uzeti iz app properties
     }
 }

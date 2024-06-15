@@ -9,6 +9,7 @@ import { User } from "../model/user.model";
 import { UserRole } from "../model/userRole.model";
 import { EMPTY, Observable, interval } from 'rxjs';
 import { RefreshAccessTokenResponse } from "../model/refreshAccessTokenResponse.model";
+import { SocialAuthService, SocialUser } from "@abacritt/angularx-social-login";
 
 @Injectable()
 export class AuthService {
@@ -18,7 +19,8 @@ export class AuthService {
     private userService: UserService,
     private config: ConfigService,
     private router: Router, 
-    private http: HttpClient
+    private http: HttpClient,
+    private socialAuthService: SocialAuthService
   ){
   }
 
@@ -26,6 +28,9 @@ export class AuthService {
 
   private _api_url = 'https://localhost:443/api/auth';
   private access_token = null;
+
+  socialUser: SocialUser | undefined;
+  isUserLoggedIn: boolean = false;
 
   login(user:any) {
     const loginHeaders = new HttpHeaders({
@@ -103,6 +108,7 @@ export class AuthService {
   }
 
   private refreshCheckInterval: any; //Promenljiva za interval   
+  
   logout() {
     //this.userService.currentUser = null;
     localStorage.removeItem("loggedUserRole")
@@ -111,12 +117,19 @@ export class AuthService {
     this.access_token = null;
     console.log("KAD SE ODJAVI: " + localStorage.getItem("loggedUserRole"));
 
-    // Zaustavi interval provere tokena
     if (this.refreshCheckInterval) {
       console.log("USAO unsubscribe")
       this.refreshCheckInterval.unsubscribe(); //ovo NE RADI, nez sto?
     }
-    this.router.navigate(['/']);
+
+    this.socialAuthService.signOut();
+    this.router.navigate(['/']);       
+  }
+
+
+
+  isLoggedIn(): Observable<SocialUser> {
+    return this.socialAuthService.authState;
   }
 
   tokenIsPresent() {

@@ -148,9 +148,9 @@ public class UserController {
         try {
             GoogleIdToken.Payload payload = googleSingleSignOnHandler.verify(socialUser.getIdToken());
             System.out.println("PAYLOAD EMAIL:::: " + payload.getEmail());
-            //String loginPassword = loginService.getLoginPassword(payload.getEmail());
+            String loginPassword = loginService.getLoginPassword(payload.getEmail());
             String googleEmail = payload.getEmail();
-            return new ResponseEntity<>(new ResponseGoogleDto("Token verification successful.", true, googleEmail, ""), HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseGoogleDto("Token verification successful.", true, googleEmail, loginPassword), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(new ResponseGoogleDto("Invalid Google sign in token.", false, "", ""), HttpStatus.UNAUTHORIZED);
         }

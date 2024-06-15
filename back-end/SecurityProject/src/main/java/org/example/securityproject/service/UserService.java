@@ -519,7 +519,7 @@ public class UserService {
     public User getLoggedInUser() {
         Authentication auth = null;
         try {
-            //OVO MU JE NULL
+            //ovo mu je bilo null
             auth = SecurityContextHolder.getContext().getAuthentication();
         }
         catch (Exception e) {

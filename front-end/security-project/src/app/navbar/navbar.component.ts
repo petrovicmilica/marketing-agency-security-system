@@ -31,7 +31,6 @@ export class NavbarComponent implements OnInit {
     this.auth.logout(); 
     this.router.navigate(['/']);
   }
-
   registration() {
     this.router.navigate(['/registration']);
   }
