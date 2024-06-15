@@ -30,8 +30,6 @@
   <button type="button" (click)="recaptcha()">Continue logging in</button>
 </div> 
 
-<div *ngIf="messageLogin && !messageVerification">{{ messageLogin }}</div>
-
 <div *ngIf="changePasswordFlag">
   <h2>Change Password</h2>
   <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
@@ -58,7 +56,8 @@
 <asl-google-signin-button *ngIf="!socialUser"></asl-google-signin-button>
 
 <div *ngIf="socialUser">
-  <h1>USER SE USPESNO ULOGOVAO</h1>
+  <h1>The request for logging in via google is being processed.</h1>
 
 </div>
 
+<div *ngIf="messageLogin && !messageVerification">{{ messageLogin }}</div>
