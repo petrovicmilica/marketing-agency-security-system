@@ -26,7 +26,7 @@ Some of the main features this project includes are:
 - Front-end: Angular (HTML, CSS, TypeScript)
 - Database: Relational database (PostgreSQL)
 
-## Installation
+## Getting started
 
 To set up the project locally, please follow these steps:
 1. Clone the repository
